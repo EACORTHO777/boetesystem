@@ -209,10 +209,15 @@ button:disabled {
 /* ======================
    RESPONSIVE (DESKTOP)
 ====================== */
-@media (min-width: 700px) {
+body {
+  margin: 0 auto;
+  padding: 16px;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
   body {
     max-width: 600px;
-    margin: 0 auto;
   }
 }
 
@@ -262,4 +267,14 @@ body::before {
     background-size: 220px;
     background-position: center 80px;
   }
+}
+
+section {
+  padding: 18px;
+  border-radius: 16px;
+}
+
+input,
+button {
+  font-size: 1.05rem;
 }
