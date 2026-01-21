@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <title>BÖTESYSTEM</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- App icons / favicon -->
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#2563eb">
+<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+
+<header class="app-header">
+  <img src="logo2.png" alt="BIK logga" class="app-logo" />
+  <h1>BIK BÖTESYSTEM</h1>
+</header>
+
+<section>
+  <h2>🏦 Lagkassa</h2>
+  <p id="teamPot" style="font-size: 1.4rem; font-weight: bold;">
+    0 kr
+  </p>
+</section>
+<hr />
+
+<section>
+  <h2>💸 Lägg bot</h2>
+
+  <input
+    id="playerSearch"
+    placeholder="Sök spelare"
+    autocomplete="off"
+    required
+  />
+
+  <ul id="playerResults"></ul>
+
+  <form id="fineForm">
+    <input id="amount" type="number" placeholder="Summa (kr)" required />
+    <input
+  id="reason"
+  placeholder="Anledning (välj eller skriv själv)"
+  autocomplete="off"
+/>
+<ul id="reasonResults"></ul>
+    <button type="submit">Lägg till bot</button>
+  </form>
+</section>
+
+<hr />
+<section>
+  <h2>🏆 Top 3 – Mest böter</h2>
+  <ul id="topThreeList"></ul>
+</section>
+
+<hr />
+
+<section>
+  <h2>📊 Totalsumma (obetalt)</h2>
+  <ul id="totalsList"></ul>
+</section>
+
+<hr />
+
+<section id="historySection" style="display:none">
+  <h2 id="historyTitle">📜 Historik</h2>
+  <ul id="historyList"></ul>
+  <button id="closeHistory">Stäng</button>
+</section>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
