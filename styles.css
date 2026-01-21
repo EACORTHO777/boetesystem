@@ -6,14 +6,25 @@
 }
 
 body {
-  margin: 0;
+  margin: 0 auto;
   padding: 16px;
+  max-width: 100%;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, sans-serif;
-  background: #f6f7f9;
+
+  background: linear-gradient(
+    180deg,
+    #f1f3f6 0%,
+    #f6f7f9 40%,
+    #ffffff 100%
+  );
+
   color: #111;
 }
 
+/* ======================
+   TYPOGRAFI
+====================== */
 h1 {
   text-align: center;
   margin-bottom: 24px;
@@ -29,8 +40,8 @@ h2 {
 ====================== */
 section {
   background: #fff;
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 16px;
+  padding: 18px;
   margin-bottom: 16px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
@@ -45,13 +56,13 @@ hr {
 input,
 button {
   width: 100%;
-  font-size: 1rem;
+  font-size: 1.05rem;
 }
 
 input {
-  padding: 10px 12px;
-  margin-bottom: 10px;
-  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 12px;
   border: 1px solid #ddd;
 }
 
@@ -62,9 +73,9 @@ input:focus {
 }
 
 button {
-  padding: 12px;
+  padding: 14px;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   font-weight: 600;
   background: #2563eb;
   color: white;
@@ -83,16 +94,16 @@ button:disabled {
 #reasonResults {
   list-style: none;
   padding: 0;
-  margin: -6px 0 10px;
+  margin: -6px 0 12px;
   background: #fff;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
 #playerResults li,
 #reasonResults li {
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-bottom: 1px solid #eee;
   cursor: pointer;
 }
@@ -108,11 +119,20 @@ button:disabled {
 }
 
 /* ======================
-   LAGKASSA
+   LAGKASSA (HERO)
 ====================== */
+section:first-of-type {
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #f8fafc 100%
+  );
+}
+
 #teamPot {
-  font-size: 1.6rem;
-  font-weight: 700;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
   text-align: center;
   color: #16a34a;
 }
@@ -127,8 +147,8 @@ button:disabled {
 }
 
 #topThreeList li {
-  padding: 8px 0;
-  font-size: 1rem;
+  padding: 10px 0;
+  font-size: 1.05rem;
 }
 
 /* ======================
@@ -141,8 +161,9 @@ button:disabled {
 }
 
 #totalsList li {
-  padding: 8px 0;
+  padding: 10px 0;
   border-bottom: 1px solid #eee;
+  font-size: 1.05rem;
 }
 
 #totalsList li:last-child {
@@ -159,7 +180,7 @@ button:disabled {
 }
 
 /* ======================
-   HISTORIK
+   HISTORIK (MODAL)
 ====================== */
 #historySection {
   position: fixed;
@@ -173,8 +194,8 @@ button:disabled {
 
 #historySection > * {
   background: #fff;
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 18px;
+  padding: 18px;
   width: 100%;
   max-width: 420px;
   max-height: 90vh;
@@ -188,7 +209,7 @@ button:disabled {
 }
 
 #historyList li {
-  padding: 8px 0;
+  padding: 10px 0;
   border-bottom: 1px solid #eee;
 }
 
@@ -207,21 +228,6 @@ button:disabled {
 }
 
 /* ======================
-   RESPONSIVE (DESKTOP)
-====================== */
-body {
-  margin: 0 auto;
-  padding: 16px;
-  max-width: 100%;
-}
-
-@media (min-width: 768px) {
-  body {
-    max-width: 600px;
-  }
-}
-
-/* ======================
    HEADER + LOGGA
 ====================== */
 .app-header {
@@ -229,6 +235,7 @@ body {
   flex-direction: column;
   align-items: center;
   margin-bottom: 1.5rem;
+  padding-top: 0.5rem;
 }
 
 .app-logo {
@@ -243,38 +250,11 @@ body {
   letter-spacing: 0.02em;
 }
 
-.app-header {
-  padding-top: 0.5rem;
-}
-
 /* ======================
-   FAST BAKGRUNDSLOGGA
+   RESPONSIVE (DESKTOP)
 ====================== */
-body {
-background-image: none;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.85);
-  z-index: -1;
-}
-
-@media (max-width: 600px) {
+@media (min-width: 768px) {
   body {
-    background-size: 220px;
-    background-position: center 80px;
+    max-width: 600px;
   }
-}
-
-section {
-  padding: 18px;
-  border-radius: 16px;
-}
-
-input,
-button {
-  font-size: 1.05rem;
 }
