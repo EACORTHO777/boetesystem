@@ -42,11 +42,16 @@ let players = {};          // { playerId: name }
 let fines = [];
 let selectedPlayerId = null;
 const finePresets = [
-  "Sen till träning",
-  "Glömt pikétröja (match)",
-  "Glömt benskydd/skor (match)",
-  "Meddelade ej frånvaro",
-  "Onödig varning"
+  { text: "Sen ankomst till match/träning", amount: 20 },
+  { text: "Ej hört av sig till tränarna", amount: 20 },
+  { text: "Ingen pikétröja till match (A/B)", amount: 30 },
+  { text: "Glömt benskydd eller fotbollskor till match", amount: 30 },
+  { text: "Gult kort för snack", amount: 40 },
+  { text: "Rött kort för snack", amount: 40 },
+  { text: "Däckat på lagfest", amount: 50 },
+  { text: "Spya på lagfest", amount: 20 },
+  { text: "Inte hjälpt till med inplockning av material", amount: 20 },
+  { text: "Glömt att swisha för böter (+10 kr per missad)", amount: 10 }
 ];
 
 function sortByFirstLastName(aName, bName) {
@@ -117,15 +122,17 @@ reasonInput.addEventListener("input", (e) => {
   if (!search) return;
 
   finePresets
-    .filter((text) => text.toLowerCase().includes(search))
-    .forEach((text) => {
+    .filter((item) => item.text.toLowerCase().includes(search))
+    .forEach((item) => {
       const li = document.createElement("li");
-      li.textContent = text;
+      li.textContent = `${item.text} – ${item.amount} kr`;
       li.style.cursor = "pointer";
 
       li.addEventListener("mousedown", () => {
-        reasonInput.value = text;
+        reasonInput.value = item.text;
+        amountInput.value = item.amount;
         reasonResults.innerHTML = "";
+        amountInput.focus();
       });
 
       reasonResults.appendChild(li);
