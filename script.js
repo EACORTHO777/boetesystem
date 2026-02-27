@@ -42,6 +42,7 @@ const finesRef = collection(db, "fines");
 let players = {};          // { playerId: name }
 let fines = [];
 let selectedPlayerId = null;
+let openDropdownId = null;
 const finePresets = [
   { text: "Sen ankomst till match/träning", amount: 20 },
   { text: "Ej hört av sig till tränarna", amount: 20 },
@@ -230,16 +231,18 @@ fineForm.addEventListener("submit", async (e) => {
 /* ======================
    TOTALS
 ====================== */
+/* ======================
+   TOTALS & DROPDOWN
+====================== */
 function renderTotals() {
   totalsList.innerHTML = "";
 
- // 🏦 TOTAL LAGKASSA (alla böter, betalda + obetalda)
-// 🏦 Lagkassa = ENDAST betalda böter
-const totalPot = fines
-  .filter((f) => f.paid)
-  .reduce((sum, f) => sum + f.amount, 0);
+  // 🏦 Lagkassa = ENDAST betalda böter
+  const totalPot = fines
+    .filter((f) => f.paid)
+    .reduce((sum, f) => sum + f.amount, 0);
 
-teamPot.textContent = `${totalPot} kr`;
+  teamPot.textContent = `${totalPot} kr`;
 
   const totals = {};
 
@@ -251,135 +254,118 @@ teamPot.textContent = `${totalPot} kr`;
   });
 
   Object.entries(totals)
-    .filter(([_, sum]) => sum > 0) // 👈 endast aktiva böter
+    .filter(([_, sum]) => sum > 0) // endast aktiva böter
     .sort((a, b) => {
-      if (b[1] !== a[1]) return b[1] - a[1]; // högst skuld först
+      if (b[1] !== a[1]) return b[1] - a[1];
       return sortByFirstLastName(players[a[0]], players[b[0]]);
     })
     .forEach(([playerId, sum]) => {
+
+      // Bygg historik-listan för dropdown
+      const playerFines = fines
+        .filter(f => f.playerId === playerId)
+        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+      let historyHtml = `<ul style="list-style:none; padding:0; margin:0;">`;
+      playerFines.forEach(f => {
+        historyHtml += `
+          <li style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0; border-top: none;">
+            <label style="flex-grow: 1; cursor: pointer; display: flex; align-items: center; font-size: 0.95rem;">
+              <input type="checkbox" class="toggle-paid" data-id="${f.id}" ${f.paid ? "checked" : ""} style="margin: 0 10px 0 0; width: 18px; height: 18px; cursor: pointer;" />
+              <span style="${f.paid ? 'text-decoration: line-through; opacity: 0.5;' : ''}">
+                ${f.amount} kr – ${f.reason}
+              </span>
+            </label>
+            <button class="delete-btn" data-id="${f.id}" style="width: auto; padding: 6px 10px; background: #ef4444; color: white; border-radius: 8px; margin-left: 10px; font-size: 0.9rem;">
+              🗑️
+            </button>
+          </li>
+        `;
+      });
+      historyHtml += `</ul>`;
+
+      // Kolla om denna spelare har sin dropdown öppen just nu
+      const isOpen = openDropdownId === playerId;
+
+      // Rita ut raden för spelaren + den gömda/öppna dropdownen
       totalsList.innerHTML += `
-        <li>
-          <strong class="player-link" data-player="${playerId}">
-            ${players[playerId]}
-          </strong>
-          – ${sum} kr
+        <li style="display: flex; flex-direction: column; align-items: stretch; padding: 12px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <strong class="player-link" data-player="${playerId}" style="cursor: pointer; display: flex; align-items: center; gap: 6px; color: #2563eb; user-select: none; font-size: 1.05rem;">
+              ${players[playerId]} <span style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">${isOpen ? "▴" : "▾"}</span>
+            </strong>
+            <span style="font-size: 1.05rem;">${sum} kr</span>
+          </div>
+
+          <div style="display: ${isOpen ? "block" : "none"}; margin-top: 12px; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+            ${historyHtml}
+          </div>
         </li>
       `;
     });
 
-  // Om ingen har böter
   if (!totalsList.innerHTML) {
-    totalsList.innerHTML = `<li><em>Inga aktiva böter 🎉</em></li>`;
+    totalsList.innerHTML = `<li style="padding: 10px 0;"><em>Inga aktiva böter 🎉</em></li>`;
   }
+
   /* ======================
-   TOP 3 – MEST BÖTER (TOTALT)
-====================== */
-topThreeList.innerHTML = "";
+     TOP 3 – MEST BÖTER (TOTALT)
+  ====================== */
+  topThreeList.innerHTML = "";
+  const totalsAll = {};
+  fines.forEach((f) => {
+    if (!players[f.playerId]) return;
+    totalsAll[f.playerId] = (totalsAll[f.playerId] || 0) + f.amount;
+  });
 
-const totalsAll = {};
+  const topThree = Object.entries(totalsAll)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3);
 
-// summera ALLA böter (betalda + obetalda)
-fines.forEach((f) => {
-  if (!players[f.playerId]) return;
-  totalsAll[f.playerId] = (totalsAll[f.playerId] || 0) + f.amount;
-});
+  topThree.forEach(([playerId, sum], index) => {
+    const medal = ["🥇", "🥈", "🥉"][index];
+    topThreeList.innerHTML += `
+      <li style="padding: 10px 0; font-size: 1.05rem;">
+        ${medal} <strong>${players[playerId]}</strong> – ${sum} kr
+      </li>
+    `;
+  });
 
-const topThree = Object.entries(totalsAll)
-  .sort((a, b) => b[1] - a[1])
-  .slice(0, 3);
-
-topThree.forEach(([playerId, sum], index) => {
-  const medal = ["🥇", "🥈", "🥉"][index];
-
-  topThreeList.innerHTML += `
-    <li>
-      ${medal} <strong>${players[playerId]}</strong> – ${sum} kr
-    </li>
-  `;
-});
-
-if (!topThree.length) {
-  topThreeList.innerHTML = `<li><em>Inga böter ännu</em></li>`;
-}
+  if (!topThree.length) {
+    topThreeList.innerHTML = `<li style="padding: 10px 0;"><em>Inga böter ännu</em></li>`;
+  }
 }
 
 /* ======================
-   HISTORY
+   KLICKA I LISTAN (ÖPPNA DROPDOWN, BETALA, RADERA)
 ====================== */
-totalsList.addEventListener("click", (e) => {
-  if (!e.target.classList.contains("player-link")) return;
+totalsList.addEventListener("click", async (e) => {
+  // 1. Klicka på spelarnamn -> Öppna/stäng dropdown
+  const playerLink = e.target.closest(".player-link");
+  if (playerLink) {
+    const playerId = playerLink.dataset.player;
+    openDropdownId = openDropdownId === playerId ? null : playerId;
+    renderTotals();
+    return;
+  }
 
-  const playerId = e.target.dataset.player;
-  historyTitle.textContent = `📜 Historik – ${players[playerId]}`;
-  historyList.innerHTML = "";
-
-  fines
-    .filter((f) => f.playerId === playerId)
-    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
-    .forEach((f) => {
-historyList.innerHTML += `
-  <li style="display: flex; justify-content: space-between; align-items: center;">
-    <label style="flex-grow: 1; cursor: pointer;">
-      <input
-        type="checkbox"
-        data-id="${f.id}"
-        ${f.paid ? "checked" : ""}
-      />
-      <span class="${f.paid ? "paid" : ""}">
-        ${f.amount} kr – ${f.reason}
-      </span>
-    </label>
-    <button class="delete-btn" data-id="${f.id}" style="width: auto; padding: 6px 10px; background: #ef4444; color: white; border-radius: 8px; margin-left: 10px; font-size: 0.9rem;">
-      🗑️
-    </button>
-  </li>
-`;
-    });
-
-  historySection.style.display = "block";
+  // 2. Klicka på papperskorgen -> Radera bot
+  const deleteBtn = e.target.closest(".delete-btn");
+  if (deleteBtn) {
+    const fineId = deleteBtn.dataset.id;
+    if (confirm("Är du säker på att du vill radera denna bot helt?")) {
+      await deleteDoc(doc(db, "fines", fineId));
+    }
+    return;
+  }
 });
 
-/* ======================
-   TOGGLE PAID
-====================== */
-historyList.addEventListener("change", async (e) => {
-  if (e.target.type === "checkbox") {
+// 3. Kryssa i betald-rutan
+totalsList.addEventListener("change", async (e) => {
+  if (e.target.classList.contains("toggle-paid")) {
     await updateDoc(doc(db, "fines", e.target.dataset.id), {
       paid: e.target.checked
     });
   }
 });
-
-/* ======================
-   DELETE BOT
-====================== */
-historyList.addEventListener("click", async (e) => {
-  if (e.target.closest(".delete-btn")) {
-    const btn = e.target.closest(".delete-btn");
-    const fineId = btn.dataset.id;
-    
-    const confirmDelete = confirm("Är du säker på att du vill radera denna bot helt?");
-    
-    if (confirmDelete) {
-      await deleteDoc(doc(db, "fines", fineId));
-    }
-  }
-});
-
-closeHistory.addEventListener("click", () => {
-  historySection.style.display = "none";
-});
-
-/* ======================
-   ENTER = SUBMIT BOT
-====================== */
-[fineForm, amountInput, reasonInput].forEach((el) => {
-  el.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      fineForm.requestSubmit();
-    }
-  });
-});
-
-console.log("🔥 Bötessystem – Safari-safe, komplett");
+  
