@@ -52,7 +52,11 @@ const finePresets = [
   { text: "Däckat på lagfest", amount: 50 },
   { text: "Spya på lagfest", amount: 20 },
   { text: "Inte hjälpt till med inplockning av material", amount: 20 },
-  { text: "Glömt att swisha för böter (+10 kr per missad)", amount: 10 }
+  { text: "Glömt att swisha för böter (+10 kr per missad)", amount: 10 },
+  { text: "Bakfull på match", amount: 30 },
+  { text: "Mobil under träning", amount: 20 },
+  { text: "Mobil under samling", amount: 20 },
+  { text: "Mobil under match", amount: 20 }
 ];
 
 function sortByFirstLastName(aName, bName) {
