@@ -4,6 +4,7 @@ import {
   addDoc,
   onSnapshot,
   updateDoc,
+  deleteDoc,
   doc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -154,7 +155,7 @@ const initialPlayers = [
   "Charlie Kling",
   "Daniel Rudestig",
   "Dante Hellström Engström",
-  "Elias Alexander Cancino",
+  "Alexander Cancino",
   "Elias Persson",
   "Emil Franson",
   "Felix Dominique",
@@ -312,9 +313,9 @@ totalsList.addEventListener("click", (e) => {
     .filter((f) => f.playerId === playerId)
     .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
     .forEach((f) => {
-   historyList.innerHTML += `
-  <li>
-    <label>
+historyList.innerHTML += `
+  <li style="display: flex; justify-content: space-between; align-items: center;">
+    <label style="flex-grow: 1; cursor: pointer;">
       <input
         type="checkbox"
         data-id="${f.id}"
@@ -324,6 +325,9 @@ totalsList.addEventListener("click", (e) => {
         ${f.amount} kr – ${f.reason}
       </span>
     </label>
+    <button class="delete-btn" data-id="${f.id}" style="width: auto; padding: 6px 10px; background: #ef4444; color: white; border-radius: 8px; margin-left: 10px; font-size: 0.9rem;">
+      🗑️
+    </button>
   </li>
 `;
     });
@@ -339,6 +343,22 @@ historyList.addEventListener("change", async (e) => {
     await updateDoc(doc(db, "fines", e.target.dataset.id), {
       paid: e.target.checked
     });
+  }
+});
+
+/* ======================
+   DELETE BOT
+====================== */
+historyList.addEventListener("click", async (e) => {
+  if (e.target.closest(".delete-btn")) {
+    const btn = e.target.closest(".delete-btn");
+    const fineId = btn.dataset.id;
+    
+    const confirmDelete = confirm("Är du säker på att du vill radera denna bot helt?");
+    
+    if (confirmDelete) {
+      await deleteDoc(doc(db, "fines", fineId));
+    }
   }
 });
 
