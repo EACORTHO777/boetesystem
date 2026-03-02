@@ -261,29 +261,53 @@ function renderTotals() {
     })
     .forEach(([playerId, sum]) => {
 
-      // Bygg historik-listan för dropdown
+// Bygg historik-listan för dropdown (Nyaste högst upp)
       const playerFines = fines
         .filter(f => f.playerId === playerId)
-        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+        .sort((a, b) => {
+          // Om tiden saknas (precis nyskapad bot), låtsas att den lades till exakt NU
+          const timeA = a.createdAt?.seconds || Date.now() / 1000;
+          const timeB = b.createdAt?.seconds || Date.now() / 1000;
+          return timeB - timeA; 
+        });
 
       let historyHtml = `<ul style="list-style:none; padding:0; margin:0;">`;
       playerFines.forEach(f => {
+        
+        // 🕒 Omvandla Firebase-tid till snygg svensk tid
+        let dateString = "Laddar tid...";
+        if (f.createdAt) {
+          const dateObj = new Date(f.createdAt.seconds * 1000);
+          dateString = dateObj.toLocaleString('sv-SE', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        }
+
         historyHtml += `
-          <li style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0; border-top: none;">
-            <label style="flex-grow: 1; cursor: pointer; display: flex; align-items: center; font-size: 0.95rem;">
-              <input type="checkbox" class="toggle-paid" data-id="${f.id}" ${f.paid ? "checked" : ""} style="margin: 0 10px 0 0; width: 18px; height: 18px; cursor: pointer;" />
-              <span style="${f.paid ? 'text-decoration: line-through; opacity: 0.5;' : ''}">
-                ${f.amount} kr – ${f.reason}
-              </span>
+          <li style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #e2e8f0; border-top: none;">
+            <label style="flex-grow: 1; cursor: pointer; display: flex; align-items: flex-start; font-size: 0.95rem;">
+              <input type="checkbox" class="toggle-paid" data-id="${f.id}" ${f.paid ? "checked" : ""} style="margin: 4px 10px 0 0; width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;" />
+              
+              <div style="display: flex; flex-direction: column; ${f.paid ? 'text-decoration: line-through; opacity: 0.5;' : ''}">
+                <span>${f.amount} kr – ${f.reason}</span>
+                <span style="font-size: 0.75rem; color: #64748b; margin-top: 3px;">
+                  🗓️ ${dateString}
+                </span>
+              </div>
             </label>
-            <button class="delete-btn" data-id="${f.id}" style="width: auto; padding: 6px 10px; background: #ef4444; color: white; border-radius: 8px; margin-left: 10px; font-size: 0.9rem;">
+            
+            <button class="delete-btn" data-id="${f.id}" style="width: auto; padding: 6px 10px; background: #ef4444; color: white; border-radius: 8px; margin-left: 10px; font-size: 0.9rem; flex-shrink: 0;">
               🗑️
             </button>
           </li>
         `;
       });
       historyHtml += `</ul>`;
-
+      
       // Kolla om denna spelare har sin dropdown öppen just nu
       const isOpen = openDropdownId === playerId;
 
