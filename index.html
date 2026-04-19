@@ -57,6 +57,23 @@
   <p id="teamPot" style="font-size: 1.4rem; font-weight: bold;">
     0 kr
   </p>
+
+  <!-- Uttag-formulär -->
+  <form id="withdrawalForm" style="margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+    <h3 style="margin: 0 0 12px; font-size: 1rem; color: #374151;">Ta ut pengar ur kassan</h3>
+    <input id="withdrawalAmount" type="number" placeholder="Summa (kr)" required />
+    <input id="withdrawalReason" type="text" placeholder="Vad används pengarna till?" autocomplete="off" required />
+    <button type="submit" id="withdrawalBtn" style="background: #dc2626;">Registrera uttag</button>
+  </form>
+
+  <!-- Uttags-historik accordion -->
+  <div style="margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+    <button type="button" id="toggleWithdrawals" style="background: #f1f5f9; color: #374151; font-weight: 600; font-size: 0.95rem; padding: 10px 14px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
+      <span>📋 Uttags-historik</span>
+      <span id="withdrawalChevron">▾</span>
+    </button>
+    <ul id="withdrawalsList" style="display: none; list-style: none; padding: 0; margin: 8px 0 0;"></ul>
+  </div>
 </section>
 
 <!-- 4️⃣ TOP 3 -->

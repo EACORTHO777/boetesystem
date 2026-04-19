@@ -9,6 +9,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+
 /* ======================
    DOM
 ====================== */
@@ -30,19 +31,29 @@ const teamPot = document.getElementById("teamPot");
 
 const topThreeList = document.getElementById("topThreeList");
 
+const withdrawalForm = document.getElementById("withdrawalForm");
+const withdrawalAmount = document.getElementById("withdrawalAmount");
+const withdrawalReason = document.getElementById("withdrawalReason");
+const withdrawalsList = document.getElementById("withdrawalsList");
+const toggleWithdrawals = document.getElementById("toggleWithdrawals");
+const withdrawalChevron = document.getElementById("withdrawalChevron");
+
 /* ======================
    FIRESTORE
 ====================== */
 const playersRef = collection(db, "players");
 const finesRef = collection(db, "fines");
+const withdrawalsRef = collection(db, "withdrawals");
 
 /* ======================
    STATE
 ====================== */
 let players = {};          // { playerId: name }
 let fines = [];
+let withdrawals = [];
 let selectedPlayerId = null;
 let openDropdownId = null;
+let withdrawalsOpen = false;
 const finePresets = [
   { text: "Sen ankomst till match/träning", amount: 20 },
   { text: "Ej hört av sig till tränarna", amount: 20 },
@@ -237,12 +248,16 @@ fineForm.addEventListener("submit", async (e) => {
 function renderTotals() {
   totalsList.innerHTML = "";
 
-  // 🏦 Lagkassa = ENDAST betalda böter
-  const totalPot = fines
+  // 🏦 Lagkassa = betalda böter minus uttag
+  const totalPaid = fines
     .filter((f) => f.paid)
     .reduce((sum, f) => sum + f.amount, 0);
 
+  const totalWithdrawn = withdrawals.reduce((sum, w) => sum + w.amount, 0);
+  const totalPot = totalPaid - totalWithdrawn;
+
   teamPot.textContent = `${totalPot} kr`;
+  teamPot.style.color = totalPot < 0 ? "#dc2626" : "#16a34a";
 
   const totals = {};
 
@@ -390,6 +405,102 @@ totalsList.addEventListener("change", async (e) => {
     await updateDoc(doc(db, "fines", e.target.dataset.id), {
       paid: e.target.checked
     });
+  }
+});
+
+/* ======================
+   WITHDRAWALS (REALTIME)
+====================== */
+onSnapshot(withdrawalsRef, (snapshot) => {
+  withdrawals = [];
+  snapshot.forEach((d) => withdrawals.push({ id: d.id, ...d.data() }));
+  renderTotals();
+  renderWithdrawals();
+});
+
+/* ======================
+   ADD WITHDRAWAL
+====================== */
+withdrawalForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const amount = Number(withdrawalAmount.value);
+  const reason = withdrawalReason.value.trim();
+
+  if (!amount || !reason) return;
+
+  await addDoc(withdrawalsRef, {
+    amount,
+    reason,
+    createdAt: serverTimestamp()
+  });
+
+  withdrawalAmount.value = "";
+  withdrawalReason.value = "";
+});
+
+/* ======================
+   RENDER WITHDRAWALS LIST
+====================== */
+function renderWithdrawals() {
+  withdrawalsList.innerHTML = "";
+
+  if (!withdrawals.length) {
+    withdrawalsList.innerHTML = `<li style="padding: 10px 0; color: #64748b; font-size: 0.95rem;"><em>Inga uttag ännu</em></li>`;
+    return;
+  }
+
+  const sorted = [...withdrawals].sort((a, b) => {
+    const tA = a.createdAt?.seconds || 0;
+    const tB = b.createdAt?.seconds || 0;
+    return tB - tA;
+  });
+
+  sorted.forEach((w) => {
+    let dateString = "Laddar tid...";
+    if (w.createdAt) {
+      const d = new Date(w.createdAt.seconds * 1000);
+      dateString = d.toLocaleString("sv-SE", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    const li = document.createElement("li");
+    li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #e2e8f0;";
+    li.innerHTML = `
+      <div style="display:flex; flex-direction:column; font-size:0.95rem;">
+        <span style="font-weight:600; color:#dc2626;">−${w.amount} kr</span>
+        <span style="margin-top:2px;">${w.reason}</span>
+        <span style="font-size:0.75rem; color:#64748b; margin-top:3px;">🗓️ ${dateString}</span>
+      </div>
+      <button class="delete-withdrawal-btn" data-id="${w.id}" style="width:auto; padding:6px 10px; background:#ef4444; color:white; border-radius:8px; margin-left:10px; font-size:0.9rem; flex-shrink:0;">🗑️</button>
+    `;
+    withdrawalsList.appendChild(li);
+  });
+}
+
+/* ======================
+   TOGGLE WITHDRAWALS LIST
+====================== */
+toggleWithdrawals.addEventListener("click", () => {
+  withdrawalsOpen = !withdrawalsOpen;
+  withdrawalsList.style.display = withdrawalsOpen ? "block" : "none";
+  withdrawalChevron.textContent = withdrawalsOpen ? "▴" : "▾";
+});
+
+/* ======================
+   DELETE WITHDRAWAL
+====================== */
+withdrawalsList.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".delete-withdrawal-btn");
+  if (btn) {
+    if (confirm("Är du säker på att du vill radera detta uttag?")) {
+      await deleteDoc(doc(db, "withdrawals", btn.dataset.id));
+    }
   }
 });
   
