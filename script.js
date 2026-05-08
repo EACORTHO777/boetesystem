@@ -187,6 +187,7 @@ const initialPlayers = [
   "Kim Kongo Borgebäck",
   "Kim Magnusson",
   "Ludvig Schouenke",
+  " Mattias Engan"
   "Max Johansson",
   "Musa Joma",
   "Ossian Leisjö",
