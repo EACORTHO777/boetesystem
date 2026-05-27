@@ -68,7 +68,8 @@ const finePresets = [
   { text: "Bakfull på match", amount: 30 },
   { text: "Mobil under träning", amount: 20 },
   { text: "Mobil under samling", amount: 20 },
-  { text: "Mobil under match", amount: 20 }
+  { text: "Mobil under match", amount: 20 },
+  { text: "Sent meddelad frånvaro", amount: 30 }
 ];
 
 function sortByFirstLastName(aName, bName) {
