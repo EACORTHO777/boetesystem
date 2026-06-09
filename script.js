@@ -38,6 +38,10 @@ const withdrawalsList = document.getElementById("withdrawalsList");
 const toggleWithdrawals = document.getElementById("toggleWithdrawals");
 const withdrawalChevron = document.getElementById("withdrawalChevron");
 
+const openFineModalBtn = document.getElementById("openFineModal");
+const closeFineModalBtn = document.getElementById("closeFineModal");
+const fineModal = document.getElementById("fineModal");
+
 /* ======================
    FIRESTORE
 ====================== */
@@ -234,11 +238,7 @@ fineForm.addEventListener("submit", async (e) => {
     createdAt: serverTimestamp()
   });
 
-  reasonResults.innerHTML = "";
-
-  amountInput.value = "";
-  reasonInput.value = "";
-  amountInput.focus();
+  closeModal();
 });
 
 /* ======================
@@ -565,5 +565,29 @@ withdrawalsList.addEventListener("click", async (e) => {
       await deleteDoc(doc(db, "withdrawals", btn.dataset.id));
     }
   }
+});
+
+/* ======================
+   MODAL: LÄGG BOT
+====================== */
+function openModal() {
+  fineModal.classList.add("open");
+  setTimeout(() => playerSearch.focus(), 50);
+}
+
+function closeModal() {
+  fineModal.classList.remove("open");
+  playerSearch.value = "";
+  selectedPlayerId = null;
+  playerResults.innerHTML = "";
+  amountInput.value = "";
+  reasonInput.value = "";
+  reasonResults.innerHTML = "";
+}
+
+openFineModalBtn.addEventListener("click", openModal);
+closeFineModalBtn.addEventListener("click", closeModal);
+fineModal.addEventListener("click", (e) => {
+  if (e.target === fineModal) closeModal();
 });
   

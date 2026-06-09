@@ -26,30 +26,8 @@
   <ul id="totalsList"></ul>
 </section>
 
-<!-- 2️⃣ LÄGG BOT -->
-<section>
-  <h2>💸 Lägg bot</h2>
-
-  <input
-    id="playerSearch"
-    placeholder="Sök spelare"
-    autocomplete="off"
-    required
-  />
-
-  <ul id="playerResults"></ul>
-
-  <form id="fineForm">
-    <input id="amount" type="number" placeholder="Summa (kr)" required />
-    <input
-      id="reason"
-      placeholder="Anledning (välj eller skriv själv)"
-      autocomplete="off"
-    />
-    <ul id="reasonResults"></ul>
-    <button type="submit">Lägg till bot</button>
-  </form>
-</section>
+<!-- FAB: Lägg bot -->
+<button id="openFineModal" class="fab">+</button>
 
 <!-- 3️⃣ LAGKASSA -->
 <section>
@@ -88,6 +66,24 @@
   <ul id="historyList"></ul>
   <button id="closeHistory">Stäng</button>
 </section>
+
+<!-- MODAL: Lägg bot -->
+<div id="fineModal" class="modal-backdrop">
+  <div class="modal-sheet">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h2 style="margin:0;">💸 Lägg bot</h2>
+      <button id="closeFineModal" style="width:auto; padding:8px 14px; background:#e5e7eb; color:#111; border-radius:10px; font-size:1.1rem;">✕</button>
+    </div>
+    <input id="playerSearch" placeholder="Sök spelare" autocomplete="off" />
+    <ul id="playerResults"></ul>
+    <form id="fineForm">
+      <input id="amount" type="number" placeholder="Summa (kr)" required />
+      <input id="reason" placeholder="Anledning (välj eller skriv själv)" autocomplete="off" />
+      <ul id="reasonResults"></ul>
+      <button type="submit">Lägg till bot</button>
+    </form>
+  </div>
+</div>
 
 <script type="module" src="script.js"></script>
 </body>
