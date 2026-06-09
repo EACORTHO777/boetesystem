@@ -42,6 +42,10 @@ const openFineModalBtn = document.getElementById("openFineModal");
 const closeFineModalBtn = document.getElementById("closeFineModal");
 const fineModal = document.getElementById("fineModal");
 
+const paidList = document.getElementById("paidList");
+const togglePaidBtn = document.getElementById("togglePaid");
+const paidChevron = document.getElementById("paidChevron");
+
 /* ======================
    FIRESTORE
 ====================== */
@@ -354,61 +358,7 @@ function renderTotals() {
     totalsList.innerHTML = `<li style="padding: 10px 0;"><em>Inga aktiva böter 🎉</em></li>`;
   }
 
-  // Visa spelare med bara betalda böter längst ner (för att kunna hantera/radera dem)
-  if (paidOnlyIds.length > 0) {
-    paidOnlyIds
-      .filter(id => players[id])
-      .sort((a, b) => sortByFirstLastName(players[a], players[b]))
-      .forEach(playerId => {
-        const playerFines = fines
-          .filter(f => f.playerId === playerId)
-          .sort((a, b) => {
-            const timeA = a.createdAt?.seconds || Date.now() / 1000;
-            const timeB = b.createdAt?.seconds || Date.now() / 1000;
-            return timeB - timeA;
-          });
-
-        let historyHtml = `<ul style="list-style:none; padding:0; margin:0;">`;
-        playerFines.forEach(f => {
-          let dateString = "Laddar tid...";
-          if (f.createdAt) {
-            const dateObj = new Date(f.createdAt.seconds * 1000);
-            dateString = dateObj.toLocaleString('sv-SE', {
-              year: 'numeric', month: 'short', day: 'numeric',
-              hour: '2-digit', minute: '2-digit'
-            });
-          }
-          historyHtml += `
-            <li style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
-              <label style="flex-grow: 1; cursor: pointer; display: flex; align-items: flex-start; font-size: 0.95rem;">
-                <input type="checkbox" class="toggle-paid" data-id="${f.id}" ${f.paid ? "checked" : ""} style="margin: 4px 10px 0 0; width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;" />
-                <div style="display: flex; flex-direction: column; ${f.paid ? 'text-decoration: line-through; opacity: 0.5;' : ''}">
-                  <span>${f.amount} kr – ${f.reason}</span>
-                  <span style="font-size: 0.75rem; color: #64748b; margin-top: 3px;">🗓️ ${dateString}</span>
-                </div>
-              </label>
-              <button class="delete-btn" data-id="${f.id}" style="width: auto; padding: 6px 10px; background: #ef4444; color: white; border-radius: 8px; margin-left: 10px; font-size: 0.9rem; flex-shrink: 0;">🗑️</button>
-            </li>
-          `;
-        });
-        historyHtml += `</ul>`;
-
-        const isOpen = openDropdownId === playerId;
-        totalsList.innerHTML += `
-          <li style="display: flex; flex-direction: column; align-items: stretch; padding: 12px 0; opacity: 0.55;">
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-              <strong class="player-link" data-player="${playerId}" style="cursor: pointer; display: flex; align-items: center; gap: 6px; color: #64748b; user-select: none; font-size: 1.05rem;">
-                ${players[playerId]} <span style="font-size: 0.8rem; margin-top: 2px;">${isOpen ? "▴" : "▾"}</span>
-              </strong>
-              <span style="font-size: 0.85rem; color: #16a34a; font-weight: 600;">Betalt ✓</span>
-            </div>
-            <div style="display: ${isOpen ? "block" : "none"}; margin-top: 12px; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
-              ${historyHtml}
-            </div>
-          </li>
-        `;
-      });
-  }
+  renderPaidPlayers(paidOnlyIds);
 
   /* ======================
      TOP 3 – MEST BÖTER (TOTALT)
@@ -589,5 +539,105 @@ openFineModalBtn.addEventListener("click", openModal);
 closeFineModalBtn.addEventListener("click", closeModal);
 fineModal.addEventListener("click", (e) => {
   if (e.target === fineModal) closeModal();
+});
+
+/* ======================
+   BETALDA – SEKTION
+====================== */
+let paidSectionOpen = false;
+
+togglePaidBtn.addEventListener("click", () => {
+  paidSectionOpen = !paidSectionOpen;
+  paidList.style.display = paidSectionOpen ? "block" : "none";
+  paidChevron.textContent = paidSectionOpen ? "▴" : "▾";
+});
+
+function renderPaidPlayers(paidOnlyIds) {
+  paidList.innerHTML = "";
+
+  const sorted = paidOnlyIds
+    .filter(id => players[id])
+    .sort((a, b) => sortByFirstLastName(players[a], players[b]));
+
+  if (!sorted.length) {
+    paidList.innerHTML = `<li style="padding:10px 0; color:#64748b; font-size:0.95rem;"><em>Inga betalda spelare ännu</em></li>`;
+    return;
+  }
+
+  sorted.forEach(playerId => {
+    const playerFines = fines
+      .filter(f => f.playerId === playerId)
+      .sort((a, b) => {
+        const timeA = a.createdAt?.seconds || Date.now() / 1000;
+        const timeB = b.createdAt?.seconds || Date.now() / 1000;
+        return timeB - timeA;
+      });
+
+    let historyHtml = `<ul style="list-style:none; padding:0; margin:0;">`;
+    playerFines.forEach(f => {
+      let dateString = "Laddar tid...";
+      if (f.createdAt) {
+        const dateObj = new Date(f.createdAt.seconds * 1000);
+        dateString = dateObj.toLocaleString('sv-SE', {
+          year: 'numeric', month: 'short', day: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+      }
+      historyHtml += `
+        <li style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #e2e8f0;">
+          <label style="flex-grow:1; cursor:pointer; display:flex; align-items:flex-start; font-size:0.95rem;">
+            <input type="checkbox" class="toggle-paid" data-id="${f.id}" ${f.paid ? "checked" : ""} style="margin:4px 10px 0 0; width:18px; height:18px; cursor:pointer; flex-shrink:0;" />
+            <div style="display:flex; flex-direction:column; ${f.paid ? 'text-decoration:line-through; opacity:0.5;' : ''}">
+              <span>${f.amount} kr – ${f.reason}</span>
+              <span style="font-size:0.75rem; color:#64748b; margin-top:3px;">🗓️ ${dateString}</span>
+            </div>
+          </label>
+          <button class="delete-btn" data-id="${f.id}" style="width:auto; padding:6px 10px; background:#ef4444; color:white; border-radius:8px; margin-left:10px; font-size:0.9rem; flex-shrink:0;">🗑️</button>
+        </li>
+      `;
+    });
+    historyHtml += `</ul>`;
+
+    const isOpen = openDropdownId === playerId;
+    paidList.innerHTML += `
+      <li style="display:flex; flex-direction:column; align-items:stretch; padding:12px 0; border-bottom:1px solid #eee; opacity:0.6;">
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+          <strong class="player-link-paid" data-player="${playerId}" style="cursor:pointer; display:flex; align-items:center; gap:6px; color:#64748b; user-select:none; font-size:1.05rem;">
+            ${players[playerId]} <span style="font-size:0.8rem; margin-top:2px;">${isOpen ? "▴" : "▾"}</span>
+          </strong>
+          <span style="font-size:0.85rem; color:#16a34a; font-weight:600;">Betalt ✓</span>
+        </div>
+        <div style="display:${isOpen ? "block" : "none"}; margin-top:12px; background:#f8fafc; padding:12px; border-radius:12px; border:1px solid #e2e8f0; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);">
+          ${historyHtml}
+        </div>
+      </li>
+    `;
+  });
+}
+
+paidList.addEventListener("click", async (e) => {
+  const playerLink = e.target.closest(".player-link-paid");
+  if (playerLink) {
+    const playerId = playerLink.dataset.player;
+    openDropdownId = openDropdownId === playerId ? null : playerId;
+    renderTotals();
+    return;
+  }
+
+  const deleteBtn = e.target.closest(".delete-btn");
+  if (deleteBtn) {
+    if (confirm("Är du säker på att du vill radera denna bot helt?")) {
+      await deleteDoc(doc(db, "fines", deleteBtn.dataset.id));
+    }
+    return;
+  }
+});
+
+paidList.addEventListener("change", async (e) => {
+  if (e.target.classList.contains("toggle-paid")) {
+    await updateDoc(doc(db, "fines", e.target.dataset.id), {
+      paid: e.target.checked
+    });
+  }
 });
   
