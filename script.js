@@ -648,4 +648,83 @@ paidList.addEventListener("change", async (e) => {
     });
   }
 });
-  
+
+/* ======================
+   SPELARE: LÄGG TILL / TA BORT
+====================== */
+let playersOpen = false;
+
+togglePlayers.addEventListener("click", () => {
+  playersOpen = !playersOpen;
+  playersPanel.style.display = playersOpen ? "block" : "none";
+  playersChevron.textContent = playersOpen ? "▴" : "▾";
+});
+
+playerForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = newPlayerName.value.trim().replace(/\s+/g, " ");
+  if (!name) return;
+
+  const exists = Object.values(players).some(
+    (p) => p.toLowerCase() === name.toLowerCase()
+  );
+  if (exists) {
+    alert(`${name} finns redan i listan.`);
+    return;
+  }
+
+  const btn = playerForm.querySelector("button");
+  btn.disabled = true;
+
+  try {
+    await addDoc(playersRef, { name, createdAt: serverTimestamp() });
+    newPlayerName.value = "";
+  } catch (err) {
+    console.error(err);
+    alert("Kunde inte spara spelaren. Kolla anslutningen.");
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+function renderPlayers() {
+  playersList.innerHTML = "";
+
+  const sorted = Object.entries(players).sort((a, b) =>
+    sortByFirstLastName(a[1], b[1])
+  );
+
+  if (!sorted.length) {
+    playersList.innerHTML = `<li style="padding:10px 0; color:#64748b;"><em>Inga spelare tillagda</em></li>`;
+    return;
+  }
+
+  sorted.forEach(([id, name]) => {
+    const li = document.createElement("li");
+    li.style.cssText =
+      "display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #e2e8f0;";
+    li.innerHTML = `
+      <span style="font-size:1rem;">${name}</span>
+      <button class="delete-player-btn" data-id="${id}" style="width:auto; padding:6px 10px; background:#ef4444; color:#fff; border-radius:8px; font-size:0.9rem; flex-shrink:0;">🗑️</button>
+    `;
+    playersList.appendChild(li);
+  });
+}
+
+playersList.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".delete-player-btn");
+  if (!btn) return;
+
+  const id = btn.dataset.id;
+
+  if (fines.some((f) => f.playerId === id)) {
+    alert(`${players[id]} har böter registrerade och kan inte tas bort. Radera böterna först.`);
+    return;
+  }
+
+  if (confirm(`Ta bort ${players[id]}?`)) {
+    await deleteDoc(doc(db, "players", id));
+  }
+});
+
