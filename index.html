@@ -60,6 +60,23 @@
   <ul id="topThreeList"></ul>
 </section>
 
+  <!-- 6️⃣ SPELARE -->
+<section>
+  <div id="togglePlayers" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+    <h2 style="margin:0;">👥 Spelare</h2>
+    <span id="playersChevron" style="font-size:0.9rem; color:#64748b;">▾</span>
+  </div>
+
+  <div id="playersPanel" style="display:none; margin-top:12px;">
+    <form id="playerForm">
+      <input id="newPlayerName" type="text" placeholder="För- och efternamn" autocomplete="off" required />
+      <button type="submit">Lägg till spelare</button>
+    </form>
+    <ul id="playersList" style="list-style:none; padding:0; margin:12px 0 0;"></ul>
+  </div>
+</section>
+
+
 <!-- 5️⃣ BETALDA -->
 <section>
   <div id="togglePaid" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
