@@ -46,6 +46,14 @@ const paidList = document.getElementById("paidList");
 const togglePaidBtn = document.getElementById("togglePaid");
 const paidChevron = document.getElementById("paidChevron");
 
+const playerForm = document.getElementById("playerForm");
+const newPlayerName = document.getElementById("newPlayerName");
+const playersList = document.getElementById("playersList");
+const playersPanel = document.getElementById("playersPanel");
+const togglePlayers = document.getElementById("togglePlayers");
+const playersChevron = document.getElementById("playersChevron");
+
+
 /* ======================
    FIRESTORE
 ====================== */
