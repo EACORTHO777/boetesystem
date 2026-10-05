@@ -1,6 +1,6 @@
 # BIK Bötesystem
 
-A real-time fines tracker for my football team, BIK. Teammates log fines from their phones, mark them as paid, and keep track of the team kitty, with every change showing up instantly on everyone's screen.
+A real-time fines tracker for my football team, BIK. Teammates log fines from their phones, mark them as paid, and keep track of the team fund, with every change showing up instantly on everyone's screen.
 
 Built for, and used by, my own team during the season. The interface is in Swedish. The live app holds the team's real data, so it's only shared within the team.
 
@@ -11,7 +11,7 @@ Built for, and used by, my own team during the season. The interface is in Swedi
 - **Fast fine logging** — a floating button opens a sheet where you search for a player and pick one of 15 preset reasons with a fixed amount (late to practice, phone during a match, yellow card for talking back, …) or type your own
 - **Outstanding fines** — each player's unpaid total, highest first, with an expandable history showing reason, amount, date and time
 - **Payments** — tick a fine as paid and it moves out of the outstanding list; players with everything paid get their own section
-- **Team kitty** — the balance is paid fines minus withdrawals, shown in green or red; withdrawals are logged with a reason and kept in a history
+- **Team fund** — the balance is paid fines minus withdrawals, shown in green or red; withdrawals are logged with a reason and kept in a history
 - **Top 3** — a leaderboard of the players with the most fines in total
 - **Player management** — add and remove players from the roster in the app
 - **Real-time sync** — every phone updates live when someone else adds a fine or marks one as paid
@@ -42,9 +42,9 @@ The app is a single page backed by three Firestore collections:
 |---|---|
 | `players` | The team roster |
 | `fines` | One document per fine: player, amount, reason, paid flag, timestamp |
-| `withdrawals` | Money taken out of the kitty: amount, reason, timestamp |
+| `withdrawals` | Money taken out of the team fund: amount, reason, timestamp |
 
-The app listens to all three collections and re-renders whenever any of them changes. Totals, the kitty balance and the top 3 are all computed in the browser from that data, so nothing is stored twice and the numbers can never drift out of sync.
+The app listens to all three collections and re-renders whenever any of them changes. Totals, the team fund balance and the top 3 are all computed in the browser from that data, so nothing is stored twice and the numbers can never drift out of sync.
 
 ### Design decisions
 
