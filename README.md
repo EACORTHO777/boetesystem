@@ -4,6 +4,14 @@ A real-time fines tracker for my football team, BIK. Teammates log fines from th
 
 Built for, and used by, my own team during the season. The interface is in Swedish. The live app holds the team's real data, so it's only shared within the team.
 
+<p align="center">
+  <img src="docs/overview.png" alt="Full app view: outstanding fines with one player's history expanded, team fund with withdrawal history, top 3, players and paid sections" width="300">
+  &nbsp;&nbsp;
+  <img src="docs/add-fine.png" alt="Add fine sheet with a player selected and preset reasons suggested for the search 'mobil'" width="300">
+</p>
+
+<p align="center"><em>Screenshots use made-up demo data, not the team's real players.</em></p>
+
 ---
 
 ## Features
@@ -79,5 +87,6 @@ boetesystem/
 ├── firebase.js     # Firebase config and offline persistence
 ├── styles.css      # Mobile-first styling
 ├── icons/          # Favicons and home screen icons
+├── docs/           # README screenshots
 └── logo23.png      # Team logo shown in the header
 ```
